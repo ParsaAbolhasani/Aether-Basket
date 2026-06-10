@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.25;
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IBasket {
+    struct Asset {
+        IERC20 token;
+        uint256 targetPercent; // 1% = 100, 100% = 10000 (basis points)
+    }
+
+    event Rebalanced(address indexed caller, uint256[] newAmounts);
+    event Deposited(address indexed user, uint256 amountIn, uint256[] amountsOut);
+    event Withdrawn(address indexed user, uint256 amountOut, uint256[] amountsIn);
+
+    function rebalance() external;
+    function deposit(uint256 amountIn, uint256 minAmountOut) external returns (uint256[] memory amountsOut);
+    function withdraw(uint256 amountOut, uint256[] memory minAmountsIn) external returns (uint256[] memory amountsIn);
+    function getCurrentAllocations() external view returns (uint256[] memory amounts);
+}

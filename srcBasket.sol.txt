@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.25;
+
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IBasket} from "./interfaces/IBasket.sol";
+import {IOracle} from "./oracle/IOracle.sol";
+
+contract Basket is IBasket, Ownable, ReentrancyGuard {
+    using SafeERC20 for IERC20;
+
+    IOracle public oracle;
+    Asset[] public assets;
+    uint256 public totalValueLocked; // در واحد USD (با 18 decimal)
+
+    constructor(address _oracle, address _owner) Ownable(_owner) {
+        oracle = IOracle(_oracle);
+    }
+
+    function addAsset(address token, uint256 targetPercent) external onlyOwner {
+        require(targetPercent <= 10000, "percent > 100%");
+        assets.push(Asset({token: IERC20(token), targetPercent: targetPercent}));
+    }
+
+    function getCurrentAllocations() public view returns (uint256[] memory amounts) {
+        amounts = new uint256[](assets.length);
+        for (uint256 i = 0; i < assets.length; i++) {
+            amounts[i] = assets[i].token.balanceOf(address(this));
+        }
+        return amounts;
+    }
+
+    function _getPrice(address token) internal view returns (uint256) {
+        return oracle.getPrice(token);
+    }
+
+    function _getTotalValueLocked() internal view returns (uint256 total) {
+        for (uint256 i = 0; i < assets.length; i++) {
+            uint256 balance = assets[i].token.balanceOf(address(this));
+            uint256 price = _getPrice(address(assets[i].token));
+            total += (balance * price) / 1e18;
+        }
+        return total;
+    }
+
+    function rebalance() external nonReentrant {
+        // منطق کامل بازتنظیم در مرحله بعد اضافه می‌شود
+        emit Rebalanced(msg.sender, new uint256[](0));
+    }
+
+    function deposit(uint256 amountIn, uint256 minAmountOut) external nonReentrant returns (uint256[] memory amountsOut) {
+        // منطق کامل در مرحله بعد
+        emit Deposited(msg.sender, amountIn, amountsOut);
+        return amountsOut;
+    }
+
+    function withdraw(uint256 amountOut, uint256[] memory minAmountsIn) external nonReentrant returns (uint256[] memory amountsIn) {
+        // منطق کامل در مرحله بعد
+        emit Withdrawn(msg.sender, amountOut, amountsIn);
+        return amountsIn;
+    }
+}
