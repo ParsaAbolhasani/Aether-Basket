@@ -1,0 +1,9 @@
+// اضافه کردن به Basket.sol
+function initialize(address _oracle, address _owner) external initializer {
+    oracle = IOracle(_oracle);
+    transferOwnership(_owner);
+}
+
+// اضافه کردن modifier initializer
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+// و contract Basket is ... Initializable
