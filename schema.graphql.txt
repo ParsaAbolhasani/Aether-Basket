@@ -1,0 +1,31 @@
+type Rebalance @entity {
+  id: ID!
+  caller: Bytes!
+  amounts: [BigInt!]!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type Deposit @entity {
+  id: ID!
+  user: Bytes!
+  amountIn: BigInt!
+  amountsOut: [BigInt!]!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type Withdrawal @entity {
+  id: ID!
+  user: Bytes!
+  amountOut: BigInt!
+  amountsIn: [BigInt!]!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type User @entity {
+  id: Bytes!
+  deposits: [Deposit!]! @derivedFrom(field: "user")
+  withdrawals: [Withdrawal!]! @derivedFrom(field: "user")
+}

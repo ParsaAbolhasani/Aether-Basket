@@ -1,0 +1,30 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Basket
+    network: sepolia
+    source:
+      address: "0xYOUR_CONTRACT_ADDRESS"
+      abi: Basket
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Rebalance
+        - Deposit
+        - Withdrawal
+      abis:
+        - name: Basket
+          file: ./abis/Basket.json
+      eventHandlers:
+        - event: Rebalanced(indexed address,uint256[])
+          handler: handleRebalanced
+        - event: Deposited(indexed address,uint256,uint256[])
+          handler: handleDeposited
+        - event: Withdrawn(indexed address,uint256,uint256[])
+          handler: handleWithdrawn
+      file: ./src/basket.ts

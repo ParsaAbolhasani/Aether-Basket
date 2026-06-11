@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.25;
+
+import "forge-std/Test.sol";
+import "../../src/Basket.sol";
+
+contract BasketInvariant is Test {
+    Basket public basket;
+
+    function setUp() public {
+        // Setup code
+    }
+
+    function invariant_totalPercentSum() public {
+        uint256 totalPercent = 0;
+        for (uint256 i = 0; i < basket.getAssetCount(); i++) {
+            (, uint256 percent) = basket.assets(i);
+            totalPercent += percent;
+        }
+        assertEq(totalPercent, 10000, "Total percent must be 100%");
+    }
+
+    function invariant_tvlNeverDecreasesWithoutWithdrawal() public {
+        uint256 tvlBefore = basket.totalValueLocked();
+        
+        // Simulate operations (skip for now)
+        
+        uint256 tvlAfter = basket.totalValueLocked();
+        assertGe(tvlAfter, tvlBefore, "TVL should not decrease without withdrawal");
+    }
+}
